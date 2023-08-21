@@ -7,13 +7,19 @@ $ACU_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACU"
 $ACS_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACS"
 
 $ACUSAVE_LIST = dir $ACU_SAVE | select -ExpandProperty "Name"
+$ACSSAVE_LIST = dir $ACS_SAVE | select -ExpandProperty "Name"
 
 #FUNCTION
 function Save-The-Save {
     $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | select -ExpandProperty "ACU"
-    Write-Output "Copy of the old Save $($SAVE_STOCK_NAME) to its directory..."
-    $SAVE_STOCK_DIRECTORY = "D:\PERSO\GAMES\ACU_SaveFile\ACU\$($SAVE_STOCK_NAME)"
+    Write-Output "Copy of the old AC Unity's Save $($SAVE_STOCK_NAME) to its directory..."
+    $SAVE_STOCK_DIRECTORY = "$($ACU_SAVE)\$($SAVE_STOCK_NAME)"
     Copy-Item "$($LOADED_SAVE)857" -Destination $SAVE_STOCK_DIRECTORY -Force -Recurse
+
+    $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | select -ExpandProperty "ACS"
+    Write-Output "Copy of the old AC Syndicat's Save $($SAVE_STOCK_NAME) to its directory..."
+    $SAVE_STOCK_DIRECTORY = "$($ACS_SAVE)\$($SAVE_STOCK_NAME)"
+    Copy-Item "$($LOADED_SAVE)1875" -Destination $SAVE_STOCK_DIRECTORY -Force -Recurse 
 }
 
 function Get-Load-Save {
@@ -34,13 +40,24 @@ function Change-Save-File {
         $SAVE_EXPORT_DIRECTORY = "$($ACU_SAVE)\$($SAVE_EXPORT_NAME)\857"
         
         Write-Output "Changing save file..."
-        Copy-Item $SAVE_EXPORT_DIRECTORY -Destination $LOADED_SAVE -Force -Recurse -Verbose
+        Copy-Item $SAVE_EXPORT_DIRECTORY -Destination $LOADED_SAVE -Force -Recurse
         $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | select -ExpandProperty "ACU"
+        (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $SAVE_EXPORT_NAME) | Set-Content .\load-saves.txt
+    }elseif($USER_GAME_CHOICE -eq 2)
+    {
+        Write-Output $ACSSAVE_LIST
+        $USER_SAVE_CHOICE = Read-Host "Please choose the Save you want to play "
+        $SAVE_EXPORT_NAME = ($ACSSAVE_LIST -split '\r?\n')[$USER_SAVE_CHOICE -1]
+        $SAVE_EXPORT_DIRECTORY = "$($ACS_SAVE)\$($SAVE_EXPORT_NAME)\1875"
+
+        Write-Output "Changing save file..."
+        Copy-Item $SAVE_EXPORT_DIRECTORY -Destination $LOADED_SAVE -Force -Recurse
+        $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | select -ExpandProperty "ACS"
         (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $SAVE_EXPORT_NAME) | Set-Content .\load-saves.txt
     }
 }
 
-function Create-Seve-File {
+function Create-Save-File {
     Write-Output "To Do"
 }
 
