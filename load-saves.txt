@@ -1,4 +1,4 @@
 {
-	"ACU": "sasha-main",
+	"ACU": "Sasha-Main",
 	"ACS": "LP-Lisa"
 }
