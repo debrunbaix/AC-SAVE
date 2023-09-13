@@ -48,6 +48,7 @@ function Change-Save-File {
         $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | select -ExpandProperty "ACU"
         (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $SAVE_EXPORT_NAME) | Set-Content .\load-saves.txt
         Write-Output "Done"
+        Get-User-Choice
     }elseif($USER_GAME_CHOICE -eq 2)
     {
         Write-Output $ACSSAVE_LIST
@@ -60,6 +61,7 @@ function Change-Save-File {
         $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | select -ExpandProperty "ACS"
         (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $SAVE_EXPORT_NAME) | Set-Content .\load-saves.txt
         Write-Output "Done"
+        Get-User-Choice
     }else
     {
         Write-Output "please enter your choice between the choice"
@@ -75,10 +77,23 @@ function Create-Save-File {
     $USER_GAME_CHOICE = Read-Host "Please enter your choice "
     if($USER_GAME_CHOICE -eq 1)
     {
-        dir "$($LOADED_SAVE)\857"
+        $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | select -ExpandProperty "ACU"
+        $USER_SAVE_NAME_CHOICE = Read-Host "Please name your new save "
+        Write-Output "Deleting loaded AC Unity save"
+        Remove-Item -Force "$($LOADED_SAVE)\857"
+        (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $USER_SAVE_NAME_CHOICE) | Set-Content .\load-saves.txt
+        Write-Output "Done"
+        Get-User-Choice
+
     }elseif($USER_GAME_CHOICE -eq 2)
     {
+        $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | select -ExpandProperty "ACS"
+        $USER_SAVE_NAME_CHOICE = Read-Host "Please name your new save "
+        Write-Output "Deleting loaded AC Syndicate save"
         Remove-Item -Force "$($LOADED_SAVE)\1875"
+        (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $USER_SAVE_NAME_CHOICE) | Set-Content .\load-saves.txt
+        Write-Output "Done"
+        Get-User-Choice
     }
 }
 
@@ -87,6 +102,8 @@ function Get-User-Choice {
         1. See loaded saves
         2. Change Save
         3. Create New Save
+        4. Delete Save
+        5. Exit
     " 
     $USER_CHOICE = Read-Host "Please enter your choice "
 
@@ -99,6 +116,10 @@ function Get-User-Choice {
     }elseif($USER_CHOICE -eq 3)
     {
         Create-Save-File
+    }elseif($USER_CHOICE -eq 5)
+    {
+        Save-The-Save
+        exit
     }else
     {
         Write-Output "please enter your choice between 1 or 2 "
