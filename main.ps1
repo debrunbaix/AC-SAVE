@@ -34,12 +34,17 @@ function Change-Save-File {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
         2. Assassin's Creed Syndicate
+        3. Back to menu.
     "
     $USER_GAME_CHOICE = Read-Host "Please enter your choice "
     if($USER_GAME_CHOICE -eq 1)
     {         
         Write-Output $ACUSAVE_LIST
         $USER_SAVE_CHOICE = Read-Host "Please choose the Save you want to play "
+        if($USER_SAVE_CHOICE -eq "none")
+        {
+            Get-User-Choice
+        }
         $SAVE_EXPORT_NAME = ($ACUSAVE_LIST -split '\r?\n')[$USER_SAVE_CHOICE -1]
         $SAVE_EXPORT_DIRECTORY = "$($ACU_SAVE)\$($SAVE_EXPORT_NAME)\857"
         
@@ -53,6 +58,10 @@ function Change-Save-File {
     {
         Write-Output $ACSSAVE_LIST
         $USER_SAVE_CHOICE = Read-Host "Please choose the Save you want to play "
+        if($USER_SAVE_CHOICE -eq "none")
+        {
+            Get-User-Choice
+        }
         $SAVE_EXPORT_NAME = ($ACSSAVE_LIST -split '\r?\n')[$USER_SAVE_CHOICE -1]
         $SAVE_EXPORT_DIRECTORY = "$($ACS_SAVE)\$($SAVE_EXPORT_NAME)\1875"
 
@@ -61,6 +70,9 @@ function Change-Save-File {
         $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | select -ExpandProperty "ACS"
         (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $SAVE_EXPORT_NAME) | Set-Content .\load-saves.txt
         Write-Output "Done"
+        Get-User-Choice
+    }elseif($USER_GAME_CHOICE -eq 3)
+    {
         Get-User-Choice
     }else
     {
@@ -73,6 +85,7 @@ function Create-Save-File {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
         2. Assassin's Creed Syndicate
+        3. Back to menu.
     "
     $USER_GAME_CHOICE = Read-Host "Please enter your choice "
     if($USER_GAME_CHOICE -eq 1)
@@ -93,6 +106,9 @@ function Create-Save-File {
         Remove-Item -Force "$($LOADED_SAVE)\1875"
         (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $USER_SAVE_NAME_CHOICE) | Set-Content .\load-saves.txt
         Write-Output "Done"
+        Get-User-Choice
+    }elseif($USER_GAME_CHOICE -eq 3)
+    {
         Get-User-Choice
     }
 }
