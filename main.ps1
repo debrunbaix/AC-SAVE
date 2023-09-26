@@ -9,21 +9,87 @@ $ACS_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACS"
 $ACUSAVE_LIST = Get-ChildItem $ACU_SAVE | Select-Object -ExpandProperty "Name"
 $ACSSAVE_LIST = Get-ChildItem $ACS_SAVE | Select-Object -ExpandProperty "Name"
 
-#FUNCTION
+## SOUS FONCTIONS
 function Backup-TheSave {
+    param (
+        $GAME,
+        $GAME_SAVE,
+        $SAVE_FILE_NUMBER
+    )
+    $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty $GAME
+    Write-Output "Copy of the old $($GAME) Save $($SAVE_STOCK_NAME) to its directory..."
+    $SAVE_STOCK_DIRECTORY = "$($GAME_SAVE)\$($SAVE_STOCK_NAME)"
+    Copy-Item "$($LOADED_SAVE)$($SAVE_FILE_NUMBER)" -Destination $SAVE_STOCK_DIRECTORY -Force -Recurse
+    Write-Output "Done"
+}
+
+function Modify-SaveFile {
+    param (
+        $GAME_SAVE_LIST,
+        $GAME_SAVE_DIRECTORY,
+        $SAVE_FILE_NUMBER,
+        $GAME_NAME
+    )
+    Write-Output $ACUSAVE_LIST
+    $USER_SAVE_CHOICE = Read-Host "Please choose the Save you want to play "
+    if($USER_SAVE_CHOICE -eq "none")
+    {
+        Get-UserChoice
+    }
+    $SAVE_EXPORT_NAME = ($GAME_SAVE_LIST -split '\r?\n')[$USER_SAVE_CHOICE -1]
+    $SAVE_EXPORT_DIRECTORY = "$($GAME_SAVE_DIRECTORY)\$($SAVE_EXPORT_NAME)\$($SAVE_FILE_NUMBER)"
+        
+    Write-Output "Changing save file..."
+    Copy-Item $SAVE_EXPORT_DIRECTORY -Destination $LOADED_SAVE -Force -Recurse
+    $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty $GAME_NAME
+    (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $SAVE_EXPORT_NAME) | Set-Content .\load-saves.txt
+    Write-Output "Done"
+    Get-UserChoice
+}
+
+function New-SaveFile {
+    param(
+        $GAME_NAME,
+        $GAME_FILE_NUMBER,
+        $GAME_SAVE_DIRECTORY
+    )
+    $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty "ACU"
+    $USER_SAVE_NAME_CHOICE = Read-Host "Please name your new save "
+    Write-Output "Deleting loaded $($GAME_NAME) save"
+    Remove-Item -Force -Recurse "$($LOADED_SAVE)\$($GAME_FILE_NUMBER)"
+    (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $USER_SAVE_NAME_CHOICE) | Set-Content .\load-saves.txt
+    New-Item -ItemType Directory -Path $ACU_SAVE\$USER_SAVE_NAME_CHOICE 
+    Write-Output "Done"
+    Get-UserChoice
+}
+
+function Remove-SaveFile {
+    param (
+        $GAME_SAVE_LIST,
+        $GAME_SAVE_DIRECTORY
+    )
+    Write-Output $GAME_SAVE_LIST
+    $USER_SAVE_CHOICE = Read-Host "Please choose the Save you want to delete "
+    if($USER_SAVE_CHOICE -eq "none")
+    {
+        Get-UserChoice
+    }
+    $SAVE_EXPORT_NAME = ($GAME_SAVE_LIST -split '\r?\n')[$USER_SAVE_CHOICE -1]
+    $SAVE_EXPORT_DIRECTORY = "$($GAME_SAVE_DIRECTORY)\$($SAVE_EXPORT_NAME)"
+        
+    Write-Output "Deleting save file..."
+    Remove-Item -Force -Recurse $SAVE_EXPORT_DIRECTORY
+    Write-Output "Done"
+    Get-UserChoice
+}
+
+# INIT FUNCTION 
+function Init-The-Backup {
     if(Test-Path "$($LOADED_SAVE)857"){
-        $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty "ACU"
-        Write-Output "Copy of the old AC Unity's Save $($SAVE_STOCK_NAME) to its directory..."
-        $SAVE_STOCK_DIRECTORY = "$($ACU_SAVE)\$($SAVE_STOCK_NAME)"
-        Copy-Item "$($LOADED_SAVE)857" -Destination $SAVE_STOCK_DIRECTORY -Force -Recurse
-        Write-Output "Done"
+        Backup-TheSave "ACU" $ACU_SAVE 857
     }
     if(Test-Path "$($LOADED_SAVE)1875"){
-        $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty "ACS"
-        Write-Output "Copy of the old AC Syndicat's Save $($SAVE_STOCK_NAME) to its directory..."
-        $SAVE_STOCK_DIRECTORY = "$($ACS_SAVE)\$($SAVE_STOCK_NAME)"
-        Copy-Item "$($LOADED_SAVE)1875" -Destination $SAVE_STOCK_DIRECTORY -Force -Recurse 
-        Write-Output "Done"
+        Backup-TheSave "ACS" $ACS_SAVE 1875
     }
 }
 
@@ -33,7 +99,7 @@ function Get-LoadSave {
     Get-UserChoice
 }
 
-function Edit-SaveFile {
+function Init-Modify-SaveFile {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
         2. Assassin's Creed Syndicate
@@ -42,49 +108,21 @@ function Edit-SaveFile {
     $USER_GAME_CHOICE = Read-Host "Please enter your choice "
     if($USER_GAME_CHOICE -eq 1)
     {         
-        Write-Output $ACUSAVE_LIST
-        $USER_SAVE_CHOICE = Read-Host "Please choose the Save you want to play "
-        if($USER_SAVE_CHOICE -eq "none")
-        {
-            Get-UserChoice
-        }
-        $SAVE_EXPORT_NAME = ($ACUSAVE_LIST -split '\r?\n')[$USER_SAVE_CHOICE -1]
-        $SAVE_EXPORT_DIRECTORY = "$($ACU_SAVE)\$($SAVE_EXPORT_NAME)\857"
-        
-        Write-Output "Changing save file..."
-        Copy-Item $SAVE_EXPORT_DIRECTORY -Destination $LOADED_SAVE -Force -Recurse
-        $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty "ACU"
-        (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $SAVE_EXPORT_NAME) | Set-Content .\load-saves.txt
-        Write-Output "Done"
-        Get-UserChoice
+        Modify-SaveFile $ACUSAVE_LIST $ACU_SAVE "857" "ACU"
     }elseif($USER_GAME_CHOICE -eq 2)
     {
-        Write-Output $ACSSAVE_LIST
-        $USER_SAVE_CHOICE = Read-Host "Please choose the Save you want to play "
-        if($USER_SAVE_CHOICE -eq "none")
-        {
-            Get-UserChoice
-        }
-        $SAVE_EXPORT_NAME = ($ACSSAVE_LIST -split '\r?\n')[$USER_SAVE_CHOICE -1]
-        $SAVE_EXPORT_DIRECTORY = "$($ACS_SAVE)\$($SAVE_EXPORT_NAME)\1875"
-
-        Write-Output "Changing save file..."
-        Copy-Item $SAVE_EXPORT_DIRECTORY -Destination $LOADED_SAVE -Force -Recurse
-        $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty "ACS"
-        (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $SAVE_EXPORT_NAME) | Set-Content .\load-saves.txt
-        Write-Output "Done"
-        Get-UserChoice
+        Modify-SaveFile $ACSSAVE_LIST $ACS_SAVE "1875" "ACS"
     }elseif($USER_GAME_CHOICE -eq 3)
     {
         Get-UserChoice
     }else
     {
         Write-Output "please enter your choice between the choice"
-        Edit-SaveFile
+        Init-Modify-SaveFile
     }
 }
 
-function New-SaveFile {
+function Init-New-SaveFile {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
         2. Assassin's Creed Syndicate
@@ -93,32 +131,17 @@ function New-SaveFile {
     $USER_GAME_CHOICE = Read-Host "Please enter your choice "
     if($USER_GAME_CHOICE -eq 1)
     {
-        $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty "ACU"
-        $USER_SAVE_NAME_CHOICE = Read-Host "Please name your new save "
-        Write-Output "Deleting loaded AC Unity save"
-        Remove-Item -Force -Recurse "$($LOADED_SAVE)\857"
-        (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $USER_SAVE_NAME_CHOICE) | Set-Content .\load-saves.txt
-        New-Item -ItemType Directory -Path $ACU_SAVE\$USER_SAVE_NAME_CHOICE 
-        Write-Output "Done"
-        Get-UserChoice
-
+        New-SaveFile "ACU" "857" $ACU_SAVE
     }elseif($USER_GAME_CHOICE -eq 2)
     {
-        $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty "ACS"
-        $USER_SAVE_NAME_CHOICE = Read-Host "Please name your new save "
-        Write-Output "Deleting loaded AC Syndicate save"
-        Remove-Item -Force -Recurse "$($LOADED_SAVE)\1875"
-        (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $USER_SAVE_NAME_CHOICE) | Set-Content .\load-saves.txt
-        New-Item -ItemType Directory -Path $ACS_SAVE\$USER_SAVE_NAME_CHOICE
-        Write-Output "Done"
-        Get-UserChoice
+        New-SaveFile "ACS" "1875" $ACS_SAVE
     }elseif($USER_GAME_CHOICE -eq 3)
     {
         Get-UserChoice
     }
 }
 
-function Remove-SaveFile {
+function Init-Remove-SaveFile {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
         2. Assassin's Creed Syndicate
@@ -127,45 +150,21 @@ function Remove-SaveFile {
     $USER_GAME_CHOICE = Read-Host "Please enter your choice "
     if($USER_GAME_CHOICE -eq 1)
     {         
-        Write-Output $ACUSAVE_LIST
-        $USER_SAVE_CHOICE = Read-Host "Please choose the Save you want to delete "
-        if($USER_SAVE_CHOICE -eq "none")
-        {
-            Get-UserChoice
-        }
-        $SAVE_EXPORT_NAME = ($ACUSAVE_LIST -split '\r?\n')[$USER_SAVE_CHOICE -1]
-        $SAVE_EXPORT_DIRECTORY = "$($ACU_SAVE)\$($SAVE_EXPORT_NAME)"
-        
-        Write-Output "Deleting save file..."
-        Remove-Item -Force -Recurse $SAVE_EXPORT_DIRECTORY
-        Write-Output "Done"
-        Get-UserChoice
+        Remove-SaveFile $ACUSAVE_LIST $ACU_SAVE
     }elseif($USER_GAME_CHOICE -eq 2)
     {
-        Write-Output $ACSSAVE_LIST
-        $USER_SAVE_CHOICE = Read-Host "Please choose the Save you want to delete "
-        if($USER_SAVE_CHOICE -eq "none")
-        {
-            Get-UserChoice
-        }
-        $SAVE_EXPORT_NAME = ($ACSSAVE_LIST -split '\r?\n')[$USER_SAVE_CHOICE -1]
-        $SAVE_EXPORT_DIRECTORY = "$($ACS_SAVE)\$($SAVE_EXPORT_NAME)"
-
-        Write-Output "Deleting save file..."
-        Remove-Item -Force -Recurse $SAVE_EXPORT_DIRECTORY
-        Write-Output "Done"
-        Get-UserChoice
+        Remove-SaveFile $ACSSAVE_LIST $ACS_SAVE
     }elseif($USER_GAME_CHOICE -eq 3)
     {
         Get-UserChoice
     }else
     {
         Write-Output "please enter your choice between the choice"
-        Remove-SaveFile
+        Init-Remove-SaveFile
     }
 }
 
-function Run-ACGames {
+function Start-ACGames {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
         2. Assassin's Creed Syndicate
@@ -181,7 +180,7 @@ function Run-ACGames {
         Get-UserChoice
     } else {
         Write-Output "please enter your choice between the choice"
-        Run-ACGames
+        Start-ACGames
     }
 }
 function Get-UserChoice {
@@ -201,19 +200,19 @@ function Get-UserChoice {
         Get-LoadSave
     }elseif($USER_CHOICE -eq 2)
     {
-        Edit-SaveFile
+        Init-Modify-SaveFile
     }elseif($USER_CHOICE -eq 3)
     {
-        New-SaveFile
+        Init-New-SaveFile
     }elseif($USER_CHOICE -eq 4)
     {
-        Remove-SaveFile
+        Init-Remove-SaveFile
     }elseif($USER_CHOICE -eq 5)
     {
-        Run-ACGames
+        Start-ACGames
     }elseif($USER_CHOICE -eq 6)
     {
-        Backup-TheSave
+        Init-The-Backup
         exit
     }else
     {
@@ -222,5 +221,5 @@ function Get-UserChoice {
     }
 }
 
-Backup-TheSave
+Init-The-Backup
 Get-UserChoice
