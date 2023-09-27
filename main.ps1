@@ -1,13 +1,13 @@
-# command
-# Copy-Item "C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\savegames\cc282584-0792-4295-8bd8-762958c54672\857" -Destination "D:\PERSO\GAMES\ACU_SaveFile\ACU\Sasha-Main" -Force -Recurse -Verbose
-
-# PATH Var
+# PATH VAR
 $LOADED_SAVE = "C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\savegames\cc282584-0792-4295-8bd8-762958c54672\"
 $ACU_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACU"
 $ACS_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACS"
 
 $ACUSAVE_LIST = Get-ChildItem $ACU_SAVE | Select-Object -ExpandProperty "Name"
 $ACSSAVE_LIST = Get-ChildItem $ACS_SAVE | Select-Object -ExpandProperty "Name"
+
+$ACU_EXE = "C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Unity\ACU.exe"
+$ACS_EXE = "d:\PERSO\GAMES\UBISOFT\Assassin's Creed Syndicate\ACS.exe"
 
 ## SOUS FONCTIONS
 function Backup-TheSave {
@@ -23,7 +23,7 @@ function Backup-TheSave {
     Write-Output "Done"
 }
 
-function Modify-SaveFile {
+function Edit-SaveFile {
     param (
         $GAME_SAVE_LIST,
         $GAME_SAVE_DIRECTORY,
@@ -84,7 +84,7 @@ function Remove-SaveFile {
 }
 
 # INIT FUNCTION 
-function Init-The-Backup {
+function Initialize-The-Backup {
     if(Test-Path "$($LOADED_SAVE)857"){
         Backup-TheSave "ACU" $ACU_SAVE 857
     }
@@ -99,7 +99,7 @@ function Get-LoadSave {
     Get-UserChoice
 }
 
-function Init-Modify-SaveFile {
+function Initialize-Modify-SaveFile {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
         2. Assassin's Creed Syndicate
@@ -108,21 +108,21 @@ function Init-Modify-SaveFile {
     $USER_GAME_CHOICE = Read-Host "Please enter your choice "
     if($USER_GAME_CHOICE -eq 1)
     {         
-        Modify-SaveFile $ACUSAVE_LIST $ACU_SAVE "857" "ACU"
+        Edit-SaveFile $ACUSAVE_LIST $ACU_SAVE "857" "ACU"
     }elseif($USER_GAME_CHOICE -eq 2)
     {
-        Modify-SaveFile $ACSSAVE_LIST $ACS_SAVE "1875" "ACS"
+        Edit-SaveFile $ACSSAVE_LIST $ACS_SAVE "1875" "ACS"
     }elseif($USER_GAME_CHOICE -eq 3)
     {
         Get-UserChoice
     }else
     {
         Write-Output "please enter your choice between the choice"
-        Init-Modify-SaveFile
+        Initialize-Modify-SaveFile
     }
 }
 
-function Init-New-SaveFile {
+function Initialize-New-SaveFile {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
         2. Assassin's Creed Syndicate
@@ -141,7 +141,7 @@ function Init-New-SaveFile {
     }
 }
 
-function Init-Remove-SaveFile {
+function Initialize-Remove-SaveFile {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
         2. Assassin's Creed Syndicate
@@ -160,7 +160,7 @@ function Init-Remove-SaveFile {
     }else
     {
         Write-Output "please enter your choice between the choice"
-        Init-Remove-SaveFile
+        Initialize-Remove-SaveFile
     }
 }
 
@@ -174,8 +174,10 @@ function Start-ACGames {
 
     if ($USER_GAME_CHOICE -eq 1) {
         write-output "Executing Assassin's Creed Unity..."
+        & $ACU_EXE
     } elseif ($USER_GAME_CHOICE -eq 2) {
         write-output "Executing Assassin's Creed Syndicate..."
+        & $ACS_EXE
     } elseif ($USER_GAME_CHOICE -eq 3) {
         Get-UserChoice
     } else {
@@ -200,19 +202,19 @@ function Get-UserChoice {
         Get-LoadSave
     }elseif($USER_CHOICE -eq 2)
     {
-        Init-Modify-SaveFile
+        Initialize-Modify-SaveFile
     }elseif($USER_CHOICE -eq 3)
     {
-        Init-New-SaveFile
+        Initialize-New-SaveFile
     }elseif($USER_CHOICE -eq 4)
     {
-        Init-Remove-SaveFile
+        Initialize-Remove-SaveFile
     }elseif($USER_CHOICE -eq 5)
     {
         Start-ACGames
     }elseif($USER_CHOICE -eq 6)
     {
-        Init-The-Backup
+        Initialize-The-Backup
         exit
     }else
     {
@@ -221,5 +223,5 @@ function Get-UserChoice {
     }
 }
 
-Init-The-Backup
+Initialize-The-Backup
 Get-UserChoice
