@@ -1,13 +1,19 @@
 # PATH VAR
-$LOADED_SAVE = "C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\savegames\cc282584-0792-4295-8bd8-762958c54672\"
-$ACU_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACU"
-$ACS_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACS"
+# $LOADED_SAVE = "C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\savegames\cc282584-0792-4295-8bd8-762958c54672\"
+# $ACU_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACU"
+# $ACS_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACS"
+$LOADED_SAVE = (Get-Content .\config.json | ConvertFrom-Json).LOADED_SAVE
+$ACU_SAVE = (Get-Content .\config.json | ConvertFrom-Json).ACU_SAVE
+$ACS_SAVE = (Get-Content .\config.json | ConvertFrom-Json).ACS_SAVE
 
 $ACUSAVE_LIST = Get-ChildItem $ACU_SAVE | Select-Object -ExpandProperty "Name"
 $ACSSAVE_LIST = Get-ChildItem $ACS_SAVE | Select-Object -ExpandProperty "Name"
 
-$ACU_EXE = "C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Unity\ACU.exe"
-$ACS_EXE = "d:\PERSO\GAMES\UBISOFT\Assassin's Creed Syndicate\ACS.exe"
+$ACU_EXE = (Get-Content .\config.json | ConvertFrom-Json).ACU_EXE
+$ACS_EXE = (Get-Content .\config.json | ConvertFrom-Json).ACS_EXE
+# $ACU_EXE = "C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Unity\ACU.exe"
+# $ACS_EXE = "d:\PERSO\GAMES\UBISOFT\Assassin's Creed Syndicate\ACS.exe"
+
 
 ## SOUS FONCTIONS
 function Backup-TheSave {
@@ -16,7 +22,7 @@ function Backup-TheSave {
         $GAME_SAVE,
         $SAVE_FILE_NUMBER
     )
-    $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty $GAME
+    $SAVE_STOCK_NAME = Get-Content load-saves.json | ConvertFrom-Json | Select-Object -ExpandProperty $GAME
     Write-Output "Copy of the old $($GAME) Save $($SAVE_STOCK_NAME) to its directory..."
     $SAVE_STOCK_DIRECTORY = "$($GAME_SAVE)\$($SAVE_STOCK_NAME)"
     Copy-Item "$($LOADED_SAVE)$($SAVE_FILE_NUMBER)" -Destination $SAVE_STOCK_DIRECTORY -Force -Recurse
@@ -41,8 +47,8 @@ function Edit-SaveFile {
         
     Write-Output "Changing save file..."
     Copy-Item $SAVE_EXPORT_DIRECTORY -Destination $LOADED_SAVE -Force -Recurse
-    $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty $GAME_NAME
-    (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $SAVE_EXPORT_NAME) | Set-Content .\load-saves.txt
+    $SAVE_STOCK_NAME = Get-Content load-saves.json | ConvertFrom-Json | Select-Object -ExpandProperty $GAME_NAME
+    (Get-Content .\load-saves.json).Replace($SAVE_STOCK_NAME, $SAVE_EXPORT_NAME) | Set-Content .\load-saves.json
     Write-Output "Done"
     Get-UserChoice
 }
@@ -53,11 +59,11 @@ function New-SaveFile {
         $GAME_FILE_NUMBER,
         $GAME_SAVE_DIRECTORY
     )
-    $SAVE_STOCK_NAME = Get-Content load-saves.txt | ConvertFrom-Json | Select-Object -ExpandProperty "ACU"
+    $SAVE_STOCK_NAME = Get-Content load-saves.json | ConvertFrom-Json | Select-Object -ExpandProperty "ACU"
     $USER_SAVE_NAME_CHOICE = Read-Host "Please name your new save "
     Write-Output "Deleting loaded $($GAME_NAME) save"
     Remove-Item -Force -Recurse "$($LOADED_SAVE)\$($GAME_FILE_NUMBER)"
-    (Get-Content .\load-saves.txt).Replace($SAVE_STOCK_NAME, $USER_SAVE_NAME_CHOICE) | Set-Content .\load-saves.txt
+    (Get-Content .\load-saves.json).Replace($SAVE_STOCK_NAME, $USER_SAVE_NAME_CHOICE) | Set-Content .\load-saves.json
     New-Item -ItemType Directory -Path $ACU_SAVE\$USER_SAVE_NAME_CHOICE 
     Write-Output "Done"
     Get-UserChoice
@@ -94,7 +100,7 @@ function Initialize-The-Backup {
 }
 
 function Get-LoadSave {
-    Get-Content load-saves.txt | ConvertFrom-Json
+    Get-Content load-saves.json | ConvertFrom-Json
     Start-Sleep -Seconds 0.6
     Get-UserChoice
 }
