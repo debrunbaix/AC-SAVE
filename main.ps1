@@ -1,7 +1,4 @@
 # PATH VAR
-# $LOADED_SAVE = "C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\savegames\cc282584-0792-4295-8bd8-762958c54672\"
-# $ACU_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACU"
-# $ACS_SAVE = "D:\PERSO\GAMES\ACU_SaveFile\ACS"
 $LOADED_SAVE = (Get-Content .\config.json | ConvertFrom-Json).LOADED_SAVE
 $ACU_SAVE = (Get-Content .\config.json | ConvertFrom-Json).ACU_SAVE
 $ACS_SAVE = (Get-Content .\config.json | ConvertFrom-Json).ACS_SAVE
@@ -11,9 +8,6 @@ $ACSSAVE_LIST = Get-ChildItem $ACS_SAVE | Select-Object -ExpandProperty "Name"
 
 $ACU_EXE = (Get-Content .\config.json | ConvertFrom-Json).ACU_EXE
 $ACS_EXE = (Get-Content .\config.json | ConvertFrom-Json).ACS_EXE
-# $ACU_EXE = "C:\Program Files (x86)\Steam\steamapps\common\Assassin's Creed Unity\ACU.exe"
-# $ACS_EXE = "d:\PERSO\GAMES\UBISOFT\Assassin's Creed Syndicate\ACS.exe"
-
 
 ## SOUS FONCTIONS
 function Backup-TheSave {
