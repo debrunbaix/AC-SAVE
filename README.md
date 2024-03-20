@@ -2,6 +2,17 @@
 
 This project provides a PowerShell script to automate save management for Assassin's Creed Unity and Assassin's Creed Syndicate games. The script offers functionalities such as backing up, restoring, creating, and deleting save files, as well as launching the games.
 
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Initial Setup](#initial-setup)
+   - [config.json File](#configjson-file)
+   - [load-saves.json File](#load-savesjson-file)
+3. [Script Features](#script-features)
+4. [Usage](#usage)
+5. [Contribution](#contribution)
+6. [License](#license)
+
 ## Prerequisites
 
 - PowerShell 5.1 or higher
