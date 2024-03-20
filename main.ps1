@@ -1,4 +1,4 @@
-# saves path
+# Paths to save locations
 $LOADED_SAVE = (Get-Content .\config.json | ConvertFrom-Json).LOADED_SAVE
 $ACU_SAVE = (Get-Content .\config.json | ConvertFrom-Json).ACU_SAVE
 $ACS_SAVE = (Get-Content .\config.json | ConvertFrom-Json).ACS_SAVE
@@ -7,12 +7,12 @@ $ACS_SAVE = (Get-Content .\config.json | ConvertFrom-Json).ACS_SAVE
 $ACUSAVE_LIST = Get-ChildItem $ACU_SAVE | Select-Object -ExpandProperty "Name"
 $ACSSAVE_LIST = Get-ChildItem $ACS_SAVE | Select-Object -ExpandProperty "Name"
 
-# AC Game binary
+# AC Game binaries
 $ACU_EXE = (Get-Content .\config.json | ConvertFrom-Json).ACU_EXE
 $ACS_EXE = (Get-Content .\config.json | ConvertFrom-Json).ACS_EXE
 
 #
-# copy the loaded game to the backup path
+# Copies the loaded game save to the backup path
 #
 function Backup-TheSave {
     param (
@@ -28,10 +28,10 @@ function Backup-TheSave {
 }
 
 #
-# 1. User choice what saves to load on the game
-# 2. get the path of the save choice by user
-# 3. copy the content of this path to the save game
-# 4. replace the save name in the "load-saves.json" file
+# 1. User chooses which save to load into the game
+# 2. Gets the path of the save chosen by the user
+# 3. Copies the content of this path to the game save location
+# 4. Replaces the save name in the "load-saves.json" file
 #
 function Edit-SaveFile {
     param (
@@ -58,11 +58,11 @@ function Edit-SaveFile {
 }
 
 #
-# 1. get the loaded save's name
-# 2. remove it
-# 3. user write the new save name
-# 4. it replace the last save in the "load-saves.json" file
-# 5. create new save path
+# 1. Gets the name of the loaded save
+# 2. Removes it
+# 3. User writes the new save name
+# 4. Replaces the last save in the "load-saves.json" file
+# 5. Creates a new save path
 #
 function New-SaveFile {
     param(
@@ -81,8 +81,8 @@ function New-SaveFile {
 }
 
 #
-# 1. User choice what saves to delete
-# 2. remove the user choice
+# 1. User chooses which save to delete
+# 2. Removes the user choice
 #
 function Remove-SaveFile {
     param (
@@ -105,9 +105,9 @@ function Remove-SaveFile {
 }
 
 #
-# 1. if a save is loaded in the game's path
-# 2. execute backup-theSave 
-# 
+# 1. Checks if a save is loaded in the game's path
+# 2. Executes backup-theSave
+#
 function Initialize-The-Backup {
     if(Test-Path "$($LOADED_SAVE)857"){
         Backup-TheSave "ACU" $ACU_SAVE 857
@@ -119,8 +119,8 @@ function Initialize-The-Backup {
 
 
 #
-# 1. this function display what saves are in game
-# 2. re-execute init choices function 
+# 1. This function displays the saves currently in the game
+# 2. Re-executes the initial choice function
 #
 function Get-LoadSave {
     Get-Content load-saves.json | ConvertFrom-Json
@@ -129,10 +129,10 @@ function Get-LoadSave {
 }
 
 #
-# 1. Function to init the savefile transfert
-# 2. User can choice between ACU & ACS or to re-execute Init choice Function
-# 3. Execute the transfert with args : 
-#       - the game's saves list
+# 1. Initializes the save file transfer
+# 2. Allows the user to choose between ACU & ACS or to return to the main menu
+# 3. Executes the transfer with arguments:
+#       - the game's save list
 #       - path of the loaded save
 #       - the ID of the game
 #       - the game's name
@@ -161,8 +161,8 @@ function Initialize-Modify-SaveFile {
 }
 
 #
-# 1. User choice between ACU & ACS to create new save file
-# 2. execute the function to create new save with for args :
+# 1. User chooses between ACU & ACS to create a new save file
+# 2. Executes the function to create a new save with arguments:
 #       - game's name
 #       - game's ID
 #       - game's save path
@@ -187,8 +187,8 @@ function Initialize-New-SaveFile {
 }
 
 #
-# 1. user choice in what game to remove save file
-# 2. Execute the remove save file function
+# 1. User chooses which game save file to remove
+# 2. Executes the remove save file function
 #
 function Initialize-Remove-SaveFile {
     Write-Output "Witch Games ?
@@ -214,7 +214,7 @@ function Initialize-Remove-SaveFile {
 }
 
 #
-# 1. function to execute one of the AC games
+# 1. Function to execute one of the AC games
 #
 function Start-ACGames {
     Write-Output "Witch Games ?
@@ -238,8 +238,8 @@ function Start-ACGames {
     }
 }
 
-# 
-# Init Function to choice what the user want.
+#
+# Initialization function to let the user choose their desired action.
 #
 function Get-UserChoice {
     Write-Output "
