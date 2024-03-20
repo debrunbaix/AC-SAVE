@@ -1,15 +1,19 @@
-# PATH VAR
+# saves path
 $LOADED_SAVE = (Get-Content .\config.json | ConvertFrom-Json).LOADED_SAVE
 $ACU_SAVE = (Get-Content .\config.json | ConvertFrom-Json).ACU_SAVE
 $ACS_SAVE = (Get-Content .\config.json | ConvertFrom-Json).ACS_SAVE
 
+# list of AC saves in backup
 $ACUSAVE_LIST = Get-ChildItem $ACU_SAVE | Select-Object -ExpandProperty "Name"
 $ACSSAVE_LIST = Get-ChildItem $ACS_SAVE | Select-Object -ExpandProperty "Name"
 
+# AC Game binary
 $ACU_EXE = (Get-Content .\config.json | ConvertFrom-Json).ACU_EXE
 $ACS_EXE = (Get-Content .\config.json | ConvertFrom-Json).ACS_EXE
 
-## SOUS FONCTIONS
+#
+# copy the loaded game to the backup path
+#
 function Backup-TheSave {
     param (
         $GAME,
@@ -23,6 +27,12 @@ function Backup-TheSave {
     Write-Output "Done"
 }
 
+#
+# 1. User choice what saves to load on the game
+# 2. get the path of the save choice by user
+# 3. copy the content of this path to the save game
+# 4. replace the save name in the "load-saves.json" file
+#
 function Edit-SaveFile {
     param (
         $GAME_SAVE_LIST,
@@ -47,6 +57,13 @@ function Edit-SaveFile {
     Get-UserChoice
 }
 
+#
+# 1. get the loaded save's name
+# 2. remove it
+# 3. user write the new save name
+# 4. it replace the last save in the "load-saves.json" file
+# 5. create new save path
+#
 function New-SaveFile {
     param(
         $GAME_NAME,
@@ -63,6 +80,10 @@ function New-SaveFile {
     Get-UserChoice
 }
 
+#
+# 1. User choice what saves to delete
+# 2. remove the user choice
+#
 function Remove-SaveFile {
     param (
         $GAME_SAVE_LIST,
@@ -83,7 +104,10 @@ function Remove-SaveFile {
     Get-UserChoice
 }
 
-# INIT FUNCTION 
+#
+# 1. if a save is loaded in the game's path
+# 2. execute backup-theSave 
+# 
 function Initialize-The-Backup {
     if(Test-Path "$($LOADED_SAVE)857"){
         Backup-TheSave "ACU" $ACU_SAVE 857
@@ -93,12 +117,26 @@ function Initialize-The-Backup {
     }
 }
 
+
+#
+# 1. this function display what saves are in game
+# 2. re-execute init choices function 
+#
 function Get-LoadSave {
     Get-Content load-saves.json | ConvertFrom-Json
     Start-Sleep -Seconds 0.6
     Get-UserChoice
 }
 
+#
+# 1. Function to init the savefile transfert
+# 2. User can choice between ACU & ACS or to re-execute Init choice Function
+# 3. Execute the transfert with args : 
+#       - the game's saves list
+#       - path of the loaded save
+#       - the ID of the game
+#       - the game's name
+#
 function Initialize-Modify-SaveFile {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
@@ -122,6 +160,13 @@ function Initialize-Modify-SaveFile {
     }
 }
 
+#
+# 1. User choice between ACU & ACS to create new save file
+# 2. execute the function to create new save with for args :
+#       - game's name
+#       - game's ID
+#       - game's save path
+#
 function Initialize-New-SaveFile {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
@@ -141,6 +186,10 @@ function Initialize-New-SaveFile {
     }
 }
 
+#
+# 1. user choice in what game to remove save file
+# 2. Execute the remove save file function
+#
 function Initialize-Remove-SaveFile {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
@@ -164,6 +213,9 @@ function Initialize-Remove-SaveFile {
     }
 }
 
+#
+# 1. function to execute one of the AC games
+#
 function Start-ACGames {
     Write-Output "Witch Games ?
         1. Assassin's Creed Unity
@@ -185,6 +237,10 @@ function Start-ACGames {
         Start-ACGames
     }
 }
+
+# 
+# Init Function to choice what the user want.
+#
 function Get-UserChoice {
     Write-Output "
         1. See loaded saves
@@ -223,5 +279,6 @@ function Get-UserChoice {
     }
 }
 
+# backup loaded file before execute the user choice
 Initialize-The-Backup
 Get-UserChoice
